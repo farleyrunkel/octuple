@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(tutorial1 LANGUAGES CXX)
 
-message(STATUS "start tutorial1")
+message(STATUS "Start config project " ${PROJECT_NAME})
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Test Widgets)
 
