@@ -4,12 +4,13 @@
 #include <QLocale>
 #include <QTranslator>
 
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    a.setApplicationName("qollama");
-    a.setApplicationDisplayName("QOllama");
+    a.setApplicationName("octuple");
+    a.setApplicationDisplayName("Octuple");
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
