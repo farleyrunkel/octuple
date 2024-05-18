@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>images/octuple.png</file>
-        <file>images/octuple-font.png</file>
+        <file>images/octuple-text.png</file>
     </qresource>
 </RCC>

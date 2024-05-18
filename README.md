@@ -1,4 +1,11 @@
 # Octuple
 
 
-![octuple](./resources/images/octuple-font.png)
+![octuple](./resources/images/octuple-text.png)
+
+
+
+
+
+
+
