@@ -4,27 +4,23 @@ project(octuple VERSION 0.1 LANGUAGES CXX)
 
 message(STATUS "Start config project " ${PROJECT_NAME})
 
-set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-list(APPEND CMAKE_AUTOUIC_SEARCH_PATHS "forms")
-
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools Test)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Test 3DCore 3DExtras 3DInput 3DRender)
 
 add_subdirectory(tests)
 
-set(TS_FILES octuple_en_US.ts)
+set(TS_FILES resources/i18n/octuple_en_US.ts)
 
 set(PROJECT_SOURCES
         src/main.cpp
         src/mainwindow.cpp
         src/mainwindow.h
-        forms/mainwindow.ui
         ${TS_FILES}
 )
 
@@ -34,6 +30,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         resources/resources.qrc
         resources/octuple.rc
+        src/initializer.h src/initializer.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET octuple APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

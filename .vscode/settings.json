@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "qentity": "cpp",
+        "qspheremesh": "cpp",
+        "qphongmaterial": "cpp",
+        "qtranslator": "cpp",
+        "qapplication": "cpp",
+        "qmainwindow": "cpp",
+        "type_traits": "cpp",
+        "version": "cpp",
+        "qextrudedtextmesh": "cpp",
+        "qcamera": "cpp",
+        "qorbitcameracontroller": "cpp",
+        "qgeometryrenderer": "cpp",
+        "qgeometry": "cpp",
+        "qfirstpersoncameracontroller": "cpp",
+        "qcylindermesh": "cpp",
+        "qframegraphnode": "cpp"
+    }
+}

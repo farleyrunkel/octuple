@@ -1,6 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/octuple.png</file>
+        <file>images/octuple-icon.png</file>
         <file>images/octuple-text.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>i18n/octuple_en_US.ts</file>
     </qresource>
 </RCC>

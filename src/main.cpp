@@ -1,27 +1,17 @@
+#include "initializer.h"
 #include "mainwindow.h"
-
 #include <QApplication>
-#include <QLocale>
-#include <QTranslator>
-
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
-    a.setApplicationName("octuple");
-    a.setApplicationDisplayName("Octuple");
+    Initializer initializer;
+    initializer.initialize(&app);
 
-    QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        const QString baseName = "octuple_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }
-    MainWindow w;
-    w.show();
-    return a.exec();
+    MainWindow mainWindow;
+
+    mainWindow.show();
+
+    return app.exec();
 }
