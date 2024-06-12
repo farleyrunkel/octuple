@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "itestwidget.h"
 #include <QApplication>
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/Qt3DWindow>
@@ -12,19 +12,8 @@
 #include <QDebug>
 #include <QSurfaceFormat>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-{
-    setupUi();
-}
+ITestWidget::ITestWidget() {
 
-MainWindow::~MainWindow()
-{
-
-}
-
-void MainWindow::setupUi()
-{
     // 设置 OpenGL 渲染
     QSurfaceFormat format;
     format.setDepthBufferSize(24);
@@ -33,20 +22,9 @@ void MainWindow::setupUi()
     format.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(format);
 
-    // 设置主窗口布局
-    setCentralWidget(new QWidget());
-    centralWidget()->setLayout(new QHBoxLayout);
-
-    // 创建停靠窗口
-    auto dock = new QDockWidget("3D View", this);
-    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
-    dock->setWidget(new QWidget);
-
-
     // 创建 3D 窗口
     Qt3DExtras::Qt3DWindow *view = new Qt3DExtras::Qt3DWindow();
-    QWidget *container = QWidget::createWindowContainer(view, dock->widget());
+    QWidget *container = QWidget::createWindowContainer(view,this);
     container->setMinimumSize(QSize(800, 600));
     container->setFocusPolicy(Qt::TabFocus);
 

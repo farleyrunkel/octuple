@@ -13,6 +13,6 @@ public:
     ~MainWindow();
 
 public:
-    void setupUi();
+    void setupMainUi();
 };
 #endif // MAINWINDOW_H

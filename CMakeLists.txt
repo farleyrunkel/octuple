@@ -10,27 +10,41 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(TS_FILES resources/i18n/octuple_en_US.ts)
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools Test)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools Test 3DCore 3DExtras 3DInput 3DRender)
 
 add_subdirectory(tests)
 
-set(TS_FILES resources/i18n/octuple_en_US.ts)
 
-set(PROJECT_SOURCES
-        src/main.cpp
-        src/mainwindow.cpp
-        src/mainwindow.h
-        ${TS_FILES}
+# Include the src directory and all its subdirectories
+set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
+
+# Find all direct subdirectories under the src directory
+file(GLOB SUBDIRS RELATIVE ${SRC_DIR} ${SRC_DIR}/*)
+foreach(subdir ${SUBDIRS})
+    if(IS_DIRECTORY ${SRC_DIR}/${subdir})
+        include_directories(${SRC_DIR}/${subdir})
+    endif()
+endforeach()
+
+# Find all source and header files in all subdirectories under the src directory
+file(GLOB PROJECT_SOURCES
+    "${SRC_DIR}/*/*.cpp"
+    "${SRC_DIR}/*/*.h"
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(octuple
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        ${TS_FILES}
+
         resources/resources.qrc
         resources/octuple.rc
-        src/initializer.h src/initializer.cpp
+
+        src/main.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET octuple APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

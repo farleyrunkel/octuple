@@ -1,4 +1,4 @@
-#include "Initializer.h"
+#include "initializer.h"
 
 void Initializer::initialize(QApplication *app)
 {
