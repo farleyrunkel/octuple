@@ -1,101 +1,139 @@
+// itestwidget.cpp
 #include "itestwidget.h"
-#include <QApplication>
-#include <Qt3DCore/QEntity>
-#include <Qt3DExtras/Qt3DWindow>
-#include <Qt3DExtras/QPhongMaterial>
-#include <Qt3DExtras/QSphereMesh>
-#include <Qt3DExtras/QOrbitCameraController>
-#include <Qt3DRender/QCamera>
-#include <Qt3DExtras/QExtrudedTextMesh>
-#include <QHBoxLayout>
-#include <QDockWidget>
-#include <QDebug>
-#include <QSurfaceFormat>
+#include <Qt3DCore/QGeometry>
+#include <Qt3DExtras/Qt3DExtras>
+#include <Qt3DRender/QGeometryRenderer>
 
-ITestWidget::ITestWidget() {
+ITestWidget::ITestWidget(QWidget *parent) : QWidget(parent) {
+    setup3DWindow();
 
-    // 设置 OpenGL 渲染
-    QSurfaceFormat format;
-    format.setDepthBufferSize(24);
-    format.setStencilBufferSize(8);
-    format.setVersion(3, 3);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
+    Qt3DExtras::QPhongMaterial *xAxisMaterial = new Qt3DExtras::QPhongMaterial();
+    xAxisMaterial->setDiffuse(QColor(Qt::red));
 
-    // 创建 3D 窗口
-    Qt3DExtras::Qt3DWindow *view = new Qt3DExtras::Qt3DWindow();
-    QWidget *container = QWidget::createWindowContainer(view,this);
-    container->setMinimumSize(QSize(800, 600));
-    container->setFocusPolicy(Qt::TabFocus);
+    Qt3DExtras::QPhongMaterial *yAxisMaterial = new Qt3DExtras::QPhongMaterial();
+    yAxisMaterial->setDiffuse(QColor(Qt::green));
 
-    // 创建根实体
-    Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
-    qDebug() << "Root entity created";
+    Qt3DExtras::QPhongMaterial *zAxisMaterial = new Qt3DExtras::QPhongMaterial();
+    zAxisMaterial->setDiffuse(QColor(Qt::blue));
 
-    // 创建线段实体
-    Qt3DCore::QEntity *lineEntity = new Qt3DCore::QEntity(rootEntity);
+    createGridLines(xAxisMaterial, yAxisMaterial);
+    createZAxis(zAxisMaterial);
+
+    setupCamera();
+
+    setupLayout();
+
+    setupConnections();
+}
+
+ITestWidget::~ITestWidget() { delete m_view; }
+
+void ITestWidget::setupConnections() {
+
+    // Connect resize event to slot for handling resize
+    connect(this, &ITestWidget::resizeSignal, this, &ITestWidget::onResize);
+}
+
+void ITestWidget::setupLayout() {
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(QWidget::createWindowContainer(m_view));
+    setLayout(layout);
+}
+
+void ITestWidget::resizeEvent(QResizeEvent *event) {
+    QWidget::resizeEvent(event);
+    emit resizeSignal(event->size()); // Emit resize signal with new size
+}
+
+void ITestWidget::onResize(const QSize &newSize) {
+    qDebug() << "ITestWidget::onResize: " << newSize;
+    m_view->resize(newSize); // Resize the Qt3DWindow with the new size
+}
+
+void ITestWidget::setupCamera() {
+
+    m_camera = m_view->camera();
+    m_camera->lens()->setPerspectiveProjection(45.0f, 4.0f / 3.0f, 0.1f,
+                                               10000.0f);
+    m_camera->setPosition(QVector3D(100, -500, 100));
+    m_camera->setUpVector(QVector3D(0, 0, 1));
+    m_camera->setViewCenter(QVector3D(0, 0, 0));
+
+    Qt3DExtras::QOrbitCameraController *camController =
+        new Qt3DExtras::QOrbitCameraController(m_rootEntity);
+    camController->setLinearSpeed(150.0f);
+    camController->setLookSpeed(180.0f);
+    camController->setCamera(m_camera);
+}
+
+void ITestWidget::setup3DWindow() {
+    m_view = new Qt3DExtras::Qt3DWindow();
+    m_view->defaultFrameGraph()->setClearColor(QColor(Qt::white));
+
+    m_rootEntity = new Qt3DCore::QEntity();
+
+    m_view->setRootEntity(m_rootEntity);
+}
+
+void ITestWidget::createLineEntity(const QVector3D &start, const QVector3D &end,
+                                   Qt3DExtras::QPhongMaterial *material) {
+    Qt3DCore::QEntity *lineEntity = new Qt3DCore::QEntity(m_rootEntity);
     Qt3DCore::QGeometry *geometry = new Qt3DCore::QGeometry(lineEntity);
-    qDebug() << "Line entity and geometry created";
 
     QByteArray bufferArray;
-    bufferArray.resize(6 * 3 * sizeof(float)); // 2 points * 3 coordinates (x, y, z) * sizeof(float)
-    float *positions = reinterpret_cast<float*>(bufferArray.data());
+    bufferArray.resize(
+        2 * 3 *
+        sizeof(float)); // 2 points * 3 coordinates (x, y, z) * sizeof(float)
+    float *positions = reinterpret_cast<float *>(bufferArray.data());
 
-    // 设置线段的起始和结束点
-    positions[0] = 0.0f; positions[1] = 0.0f; positions[2] = 0.0f; // 起点
-    positions[3] = 1.0f; positions[4] = 1.0f; positions[5] = 1.0f; // 终点
+    positions[0] = start.x();
+    positions[1] = start.y();
+    positions[2] = start.z();
+    positions[3] = end.x();
+    positions[4] = end.y();
+    positions[5] = end.z();
 
-    auto* buffer = new Qt3DCore::QBuffer(geometry);
+    Qt3DCore::QBuffer *buffer = new Qt3DCore::QBuffer();
     buffer->setData(bufferArray);
-    qDebug() << "Buffer set";
 
-    auto* positionAttribute = new Qt3DCore::QAttribute(geometry);
-    positionAttribute->setName(Qt3DCore::QAttribute::defaultPositionAttributeName());
+    Qt3DCore::QAttribute *positionAttribute = new Qt3DCore::QAttribute();
+    positionAttribute->setName(
+        Qt3DCore::QAttribute::defaultPositionAttributeName());
     positionAttribute->setVertexBaseType(Qt3DCore::QAttribute::Float);
     positionAttribute->setVertexSize(3);
     positionAttribute->setAttributeType(Qt3DCore::QAttribute::VertexAttribute);
     positionAttribute->setBuffer(buffer);
     positionAttribute->setByteStride(3 * sizeof(float));
     positionAttribute->setCount(2);
-    qDebug() << "Position attribute set";
 
     geometry->addAttribute(positionAttribute);
 
-    // 创建几何体渲染器
-    Qt3DRender::QGeometryRenderer *geometryRenderer = new Qt3DRender::QGeometryRenderer();
+    Qt3DRender::QGeometryRenderer *geometryRenderer =
+        new Qt3DRender::QGeometryRenderer();
     geometryRenderer->setGeometry(geometry);
     geometryRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
-    qDebug() << "Geometry renderer created";
 
-    // 创建材质
-    Qt3DExtras::QPhongMaterial *lineMaterial = new Qt3DExtras::QPhongMaterial();
-    lineMaterial->setDiffuse(QColor(QRgb(0x00FF00))); // 绿色
-    qDebug() << "Material created";
-
-    // 将几何体和材质添加到线段实体
     lineEntity->addComponent(geometryRenderer);
-    lineEntity->addComponent(lineMaterial);
-    qDebug() << "Components added to line entity";
+    lineEntity->addComponent(material);
+}
 
-    // 设置摄像机
-    Qt3DRender::QCamera *camera = view->camera();
-    camera->lens()->setPerspectiveProjection(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
-    camera->setPosition(QVector3D(0, 0, 20));
-    camera->setViewCenter(QVector3D(0, 0, 0));
-    qDebug() << "Camera set";
+void ITestWidget::createGridLines(Qt3DExtras::QPhongMaterial *xMaterial,
+                                  Qt3DExtras::QPhongMaterial *yMaterial) {
+    const int gridSize = 10000; // Grid size
+    const int step = 100;       // Grid step
 
-    // 创建相机控制器
-    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(rootEntity);
-    camController->setLinearSpeed(50.0f);
-    camController->setLookSpeed(180.0f);
-    camController->setCamera(camera);
-    qDebug() << "Camera controller set";
+    // Create grid lines along X and Y axes
+    for (int i = -gridSize; i <= gridSize; i += step) {
+        createLineEntity(QVector3D(i, -gridSize, 0.0f),
+                         QVector3D(i, gridSize, 0.0f),
+                         xMaterial); // Parallel to Y-axis, along X-axis
+        createLineEntity(QVector3D(-gridSize, i, 0.0f),
+                         QVector3D(gridSize, i, 0.0f),
+                         yMaterial); // Parallel to X-axis, along Y-axis
+    }
+}
 
-    // 设置根实体
-    view->setRootEntity(rootEntity);
-    qDebug() << "Root entity set in view";
-
-    // 显示窗口
-    container->show();
-    qDebug() << "Container shown";
+void ITestWidget::createZAxis(Qt3DExtras::QPhongMaterial *zMaterial) {
+    // Create Z-axis line
+    createLineEntity(QVector3D(0, 0, -10000), QVector3D(0, 0, 10000), zMaterial);
 }

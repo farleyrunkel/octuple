@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-
+#include "itestwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -15,5 +15,5 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupMainUi()
 {
-
+    setCentralWidget(new ITestWidget);
 }

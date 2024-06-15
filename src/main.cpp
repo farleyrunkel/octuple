@@ -14,8 +14,5 @@ int main(int argc, char *argv[])
 
     mainWindow.show();
 
-    ITestWidget test;
-    test.show();
-
     return app.exec();
 }
