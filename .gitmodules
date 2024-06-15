@@ -1,0 +1,3 @@
+[submodule "src/3rdparty/saribbon"]
+	path = src/3rdparty/saribbon
+	url = git@github.com:czyt1988/SARibbon.git
