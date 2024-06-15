@@ -1,13 +1,14 @@
 // itestwidget.cpp
+
 #include "itestwidget.h"
-#include <Qt3DCore/QGeometry>
-#include <Qt3DExtras/Qt3DExtras>
-#include <Qt3DRender/QGeometryRenderer>
+#include <QHBoxLayout>
+#include <QDebug>
 
 ITestWidget::ITestWidget(QWidget *parent) : QWidget(parent) {
     setup3DWindow();
 
-    createGridLines(100, 10000);
+    // Create grid lines and z-axis
+    createGridLines(100, 5000);
     createZAxis();
 
     setupCamera();
@@ -15,10 +16,11 @@ ITestWidget::ITestWidget(QWidget *parent) : QWidget(parent) {
     setupConnections();
 }
 
-ITestWidget::~ITestWidget() { delete m_view; }
+ITestWidget::~ITestWidget() {
+    delete m_view;
+}
 
 void ITestWidget::setupConnections() {
-
     // Connect resize event to slot for handling resize
     connect(this, &ITestWidget::resizeSignal, this, &ITestWidget::onResize);
 }
@@ -40,10 +42,8 @@ void ITestWidget::onResize(const QSize &newSize) {
 }
 
 void ITestWidget::setupCamera() {
-
     m_camera = m_view->camera();
-    m_camera->lens()->setPerspectiveProjection(45.0f, 4.0f / 3.0f, 0.1f,
-                                               10000.0f);
+    m_camera->lens()->setPerspectiveProjection(45.0f, 4.0f / 3.0f, 0.1f, 10000.0f);
     m_camera->setPosition(QVector3D(100, -500, 100));
     m_camera->setUpVector(QVector3D(0, 0, 1));
     m_camera->setViewCenter(QVector3D(0, 0, 0));
@@ -57,48 +57,40 @@ void ITestWidget::setupCamera() {
 
 void ITestWidget::setup3DWindow() {
     m_view = new Qt3DExtras::Qt3DWindow();
-    m_view->defaultFrameGraph()->setClearColor(QColor(Qt::white));
-
     m_rootEntity = new Qt3DCore::QEntity();
-
+    m_view->defaultFrameGraph()->setClearColor(QColor(Qt::darkGray));
     m_view->setRootEntity(m_rootEntity);
 }
 
-void ITestWidget::createLineEntity(const QVector3D &start, const QVector3D &end,
-                                   Qt3DExtras::QPhongMaterial *material) {
+void ITestWidget::createLineEntity(const QVector<QVector3D> &points, Qt3DExtras::QPhongMaterial *material) {
     Qt3DCore::QEntity *lineEntity = new Qt3DCore::QEntity(m_rootEntity);
     Qt3DCore::QGeometry *geometry = new Qt3DCore::QGeometry(lineEntity);
 
     QByteArray bufferArray;
-    bufferArray.resize(
-        2 * 3 *
-        sizeof(float)); // 2 points * 3 coordinates (x, y, z) * sizeof(float)
+    bufferArray.resize(points.size() * 3 * sizeof(float));
     float *positions = reinterpret_cast<float *>(bufferArray.data());
 
-    positions[0] = start.x();
-    positions[1] = start.y();
-    positions[2] = start.z();
-    positions[3] = end.x();
-    positions[4] = end.y();
-    positions[5] = end.z();
+    for (int i = 0; i < points.size(); ++i) {
+        positions[i * 3] = points[i].x();
+        positions[i * 3 + 1] = points[i].y();
+        positions[i * 3 + 2] = points[i].z();
+    }
 
     Qt3DCore::QBuffer *buffer = new Qt3DCore::QBuffer();
     buffer->setData(bufferArray);
 
     Qt3DCore::QAttribute *positionAttribute = new Qt3DCore::QAttribute();
-    positionAttribute->setName(
-        Qt3DCore::QAttribute::defaultPositionAttributeName());
+    positionAttribute->setName(Qt3DCore::QAttribute::defaultPositionAttributeName());
     positionAttribute->setVertexBaseType(Qt3DCore::QAttribute::Float);
     positionAttribute->setVertexSize(3);
     positionAttribute->setAttributeType(Qt3DCore::QAttribute::VertexAttribute);
     positionAttribute->setBuffer(buffer);
     positionAttribute->setByteStride(3 * sizeof(float));
-    positionAttribute->setCount(2);
+    positionAttribute->setCount(points.size());
 
     geometry->addAttribute(positionAttribute);
 
-    Qt3DRender::QGeometryRenderer *geometryRenderer =
-        new Qt3DRender::QGeometryRenderer();
+    Qt3DRender::QGeometryRenderer *geometryRenderer = new Qt3DRender::QGeometryRenderer();
     geometryRenderer->setGeometry(geometry);
     geometryRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Lines);
 
@@ -107,30 +99,33 @@ void ITestWidget::createLineEntity(const QVector3D &start, const QVector3D &end,
 }
 
 void ITestWidget::createGridLines(int step, int gridSize) {
-
     Qt3DExtras::QPhongMaterial *xAxisMaterial = new Qt3DExtras::QPhongMaterial();
-    xAxisMaterial->setDiffuse(QColor(Qt::red));
+    xAxisMaterial->setAmbient(Qt::lightGray);
 
     Qt3DExtras::QPhongMaterial *yAxisMaterial = new Qt3DExtras::QPhongMaterial();
-    yAxisMaterial->setDiffuse(QColor(Qt::green));
+    yAxisMaterial->setAmbient(Qt::lightGray);
 
-    // Create grid lines along X and Y axes
+    // Prepare points for X and Y axes
+    QVector<QVector3D> xAxisPoints;
+    QVector<QVector3D> yAxisPoints;
+
     for (int i = -gridSize; i <= gridSize; i += step) {
-        createLineEntity(QVector3D(i, -gridSize, 0.0f),
-                         QVector3D(i, gridSize, 0.0f),
-                         xAxisMaterial); // Parallel to Y-axis, along X-axis
-        createLineEntity(QVector3D(-gridSize, i, 0.0f),
-                         QVector3D(gridSize, i, 0.0f),
-                         yAxisMaterial); // Parallel to X-axis, along Y-axis
+        xAxisPoints.append(QVector3D(i, -gridSize, 0.0f));
+        xAxisPoints.append(QVector3D(i, gridSize, 0.0f));
+
+        yAxisPoints.append(QVector3D(-gridSize, i, 0.0f));
+        yAxisPoints.append(QVector3D(gridSize, i, 0.0f));
     }
+
+    // Create X and Y grid lines
+    createLineEntity(xAxisPoints, xAxisMaterial);
+    createLineEntity(yAxisPoints, yAxisMaterial);
 }
 
 void ITestWidget::createZAxis() {
-
     Qt3DExtras::QPhongMaterial *zAxisMaterial = new Qt3DExtras::QPhongMaterial();
-    zAxisMaterial->setDiffuse(QColor(Qt::blue));
+    zAxisMaterial->setAmbient(Qt::green);
 
     // Create Z-axis line
-    createLineEntity(QVector3D(0, 0, -10000), QVector3D(0, 0, 10000),
-                     zAxisMaterial);
+    createLineEntity({QVector3D(0, 0, -10000), QVector3D(0, 0, 10000)}, zAxisMaterial);
 }
