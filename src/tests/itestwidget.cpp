@@ -7,22 +7,11 @@
 ITestWidget::ITestWidget(QWidget *parent) : QWidget(parent) {
     setup3DWindow();
 
-    Qt3DExtras::QPhongMaterial *xAxisMaterial = new Qt3DExtras::QPhongMaterial();
-    xAxisMaterial->setDiffuse(QColor(Qt::red));
-
-    Qt3DExtras::QPhongMaterial *yAxisMaterial = new Qt3DExtras::QPhongMaterial();
-    yAxisMaterial->setDiffuse(QColor(Qt::green));
-
-    Qt3DExtras::QPhongMaterial *zAxisMaterial = new Qt3DExtras::QPhongMaterial();
-    zAxisMaterial->setDiffuse(QColor(Qt::blue));
-
-    createGridLines(xAxisMaterial, yAxisMaterial);
-    createZAxis(zAxisMaterial);
+    createGridLines(100, 10000);
+    createZAxis();
 
     setupCamera();
-
     setupLayout();
-
     setupConnections();
 }
 
@@ -117,23 +106,31 @@ void ITestWidget::createLineEntity(const QVector3D &start, const QVector3D &end,
     lineEntity->addComponent(material);
 }
 
-void ITestWidget::createGridLines(Qt3DExtras::QPhongMaterial *xMaterial,
-                                  Qt3DExtras::QPhongMaterial *yMaterial) {
-    const int gridSize = 10000; // Grid size
-    const int step = 100;       // Grid step
+void ITestWidget::createGridLines(int step, int gridSize) {
+
+    Qt3DExtras::QPhongMaterial *xAxisMaterial = new Qt3DExtras::QPhongMaterial();
+    xAxisMaterial->setDiffuse(QColor(Qt::red));
+
+    Qt3DExtras::QPhongMaterial *yAxisMaterial = new Qt3DExtras::QPhongMaterial();
+    yAxisMaterial->setDiffuse(QColor(Qt::green));
 
     // Create grid lines along X and Y axes
     for (int i = -gridSize; i <= gridSize; i += step) {
         createLineEntity(QVector3D(i, -gridSize, 0.0f),
                          QVector3D(i, gridSize, 0.0f),
-                         xMaterial); // Parallel to Y-axis, along X-axis
+                         xAxisMaterial); // Parallel to Y-axis, along X-axis
         createLineEntity(QVector3D(-gridSize, i, 0.0f),
                          QVector3D(gridSize, i, 0.0f),
-                         yMaterial); // Parallel to X-axis, along Y-axis
+                         yAxisMaterial); // Parallel to X-axis, along Y-axis
     }
 }
 
-void ITestWidget::createZAxis(Qt3DExtras::QPhongMaterial *zMaterial) {
+void ITestWidget::createZAxis() {
+
+    Qt3DExtras::QPhongMaterial *zAxisMaterial = new Qt3DExtras::QPhongMaterial();
+    zAxisMaterial->setDiffuse(QColor(Qt::blue));
+
     // Create Z-axis line
-    createLineEntity(QVector3D(0, 0, -10000), QVector3D(0, 0, 10000), zMaterial);
+    createLineEntity(QVector3D(0, 0, -10000), QVector3D(0, 0, 10000),
+                     zAxisMaterial);
 }

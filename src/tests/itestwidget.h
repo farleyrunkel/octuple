@@ -31,12 +31,12 @@ private:
 
     void setup3DWindow();
     void createLineEntity(const QVector3D &start, const QVector3D &end, Qt3DExtras::QPhongMaterial *material);
-    void createGridLines(Qt3DExtras::QPhongMaterial *xMaterial, Qt3DExtras::QPhongMaterial *yMaterial);
-    void createZAxis(Qt3DExtras::QPhongMaterial *zMaterial);
+    void createZAxis();
     void setupCamera();
     void setupLayout();
 
     void setupConnections();
+    void createGridLines(int step, int gridSize);
 };
 
 #endif // ITESTWIDGET_H
