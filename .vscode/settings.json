@@ -16,5 +16,8 @@
         "qfirstpersoncameracontroller": "cpp",
         "qcylindermesh": "cpp",
         "qframegraphnode": "cpp"
-    }
+    },
+    "cmake.configureArgs": [
+        "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${workspaceFolder}/build/bin"
+    ]
 }
