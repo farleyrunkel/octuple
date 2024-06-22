@@ -6,8 +6,9 @@
 #include <QWidget>
 #include <Qt3DCore>
 #include <Qt3DExtras>
+#include <QScrollArea>
 
-class ITestWidget : public QWidget
+class ITestWidget : public QScrollArea
 {
     Q_OBJECT
 public:
@@ -24,7 +25,7 @@ private:
 
     void setup3DWindow();
     void setupCamera();
-    void setupLayout();
+    void setupMainUi();
     void setupConnections();
     void createLineEntity(const QVector<QVector3D> &points, Qt3DExtras::QPhongMaterial *material);
     void createGridLines(int step, int gridSize);

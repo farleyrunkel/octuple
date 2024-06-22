@@ -1,0 +1,15 @@
+<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg">
+  <!-- 圆形5 -->
+  <circle cx="30" cy="30" r="30" fill="#4472c4" stroke="#FFFFFF" stroke-width="2" />
+  <!-- 圆形4 -->
+  <circle cx="25" cy="30" r="25" fill="#4472c4" stroke="#FFFFFF" stroke-width="2" />
+  <!-- 圆形3 -->
+  <circle cx="20" cy="30" r="20" fill="#4472c4" stroke="#FFFFFF" stroke-width="2" />
+  <!-- 圆形2 -->
+  <circle cx="15" cy="30" r="15" fill="#4472c4" stroke="#FFFFFF" stroke-width="2" />
+  <!-- 圆形1 -->
+  <circle cx="10" cy="30" r="10" fill="#D4A24C" stroke="#FFFFFF" stroke-width="2" />
+  <!-- 背景矩形 -->
+  <rect x="34" y="24" width="22" height="14" fill="#4472c4"/>
+  <text x="30" y="36" font-family="Arial" font-size="14" fill="#FFFFFF" font-weight="bold">CAD</text>
+</svg>

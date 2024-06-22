@@ -2,8 +2,8 @@
     <qresource prefix="/">
         <file>images/octuple-icon.png</file>
         <file>images/octuple-text.png</file>
-    </qresource>
-    <qresource prefix="/">
         <file>i18n/octuple_en_US.ts</file>
+        <file>icons/EchoCAD.svg</file>
+        <file>icons/octuple.svg</file>
     </qresource>
 </RCC>

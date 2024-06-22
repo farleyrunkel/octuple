@@ -5,9 +5,10 @@
 #include "SARibbonCategory.h"
 #include "SARibbonPannel.h"
 #include "SARibbonButtonGroupWidget.h"
+#include <QCalendarWidget>
 
 MainWindow::MainWindow(QWidget *parent)
-    : SARibbonMainWindow(parent)
+    : SARibbonMainWindow(parent, false)
 {
     resize(1280, 800);
     setupMainUi();
@@ -20,6 +21,24 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupMainUi()
 {
+    setupRibbonBar();
+
+    auto t = new ITestWidget;
+    setCentralWidget(t);
+
+    auto a = new QCalendarWidget(t);
+    a->setGeometry(20, 20, width(), 50);
+    setLayout(new QVBoxLayout);
+    layout()->addWidget(a);
+    setStyleSheet("background:transparent;");
+   // t->raise();
+}
+
+void MainWindow::setupRibbonBar()
+{
+    if (!isUseRibbon()) {
+        return;
+    }
     SARibbonBar *ribbon = this->ribbonBar();
     ribbon->setRibbonStyle(SARibbonBar::RibbonStyleCompactTwoRow);
     ribbon->applicationButton()->setText(("File"));
@@ -31,6 +50,4 @@ void MainWindow::setupMainUi()
     actSave->setObjectName("actSave");
     actSave->setShortcut(QKeySequence(QLatin1String("Ctrl+S")));
     pannel->addLargeAction(actSave);
-
-    setCentralWidget(new ITestWidget);
 }

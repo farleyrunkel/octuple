@@ -4,15 +4,18 @@
 #include <QHBoxLayout>
 #include <QDebug>
 
-ITestWidget::ITestWidget(QWidget *parent) : QWidget(parent) {
+ITestWidget::ITestWidget(QWidget *parent) : QScrollArea(parent) {
+
+    setupMainUi();
     setup3DWindow();
 
     // Create grid lines and z-axis
     createGridLines(100, 5000);
+
     createZAxis();
 
     setupCamera();
-    setupLayout();
+
     setupConnections();
 }
 
@@ -25,10 +28,10 @@ void ITestWidget::setupConnections() {
     connect(this, &ITestWidget::resizeSignal, this, &ITestWidget::onResize);
 }
 
-void ITestWidget::setupLayout() {
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(QWidget::createWindowContainer(m_view));
-    setLayout(layout);
+void ITestWidget::setupMainUi() {
+
+    setLayout(new QHBoxLayout(this));
+    layout()->setContentsMargins(0, 0, 0, 0);
 }
 
 void ITestWidget::resizeEvent(QResizeEvent *event) {
@@ -60,6 +63,8 @@ void ITestWidget::setup3DWindow() {
     m_rootEntity = new Qt3DCore::QEntity();
     m_view->defaultFrameGraph()->setClearColor(QColor(Qt::darkGray));
     m_view->setRootEntity(m_rootEntity);
+
+    layout()->addWidget(QWidget::createWindowContainer(m_view));
 }
 
 void ITestWidget::createLineEntity(const QVector<QVector3D> &points, Qt3DExtras::QPhongMaterial *material) {

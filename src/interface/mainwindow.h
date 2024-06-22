@@ -14,5 +14,7 @@ public:
 
 public:
     void setupMainUi();
+private:
+    void setupRibbonBar();
 };
 #endif // MAINWINDOW_H
